@@ -50,11 +50,10 @@ void setup() {
   //Legacy authentication method because I'm lazy
   Firebase.begin(DATABASE_URL, DATABASE_SECRET);
 
-  Firebase.setStreamCallback(stream, streamCallback, streamTimeoutCallback);
-
-  // Errors initially - check this out?
   if (!Firebase.beginStream(stream, "/test"))
     Serial.printf("stream begin error, %s\n\n", stream.errorReason().c_str());
+
+  Firebase.setStreamCallback(stream, streamCallback, streamTimeoutCallback);
 }
 
 void loop() {
