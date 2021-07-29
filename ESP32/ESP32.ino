@@ -5,6 +5,11 @@
 #include <FirebaseESP32.h>
 FirebaseData stream;
 
+#include "motor.h"
+#define IN1 25
+#define IN2 26
+Motor motor(IN1, IN2);
+
 void setup() {
   Serial.begin(115200);
   initWiFi(WIFI_SSID, WIFI_PASSWORD);

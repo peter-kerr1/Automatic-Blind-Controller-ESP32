@@ -1,8 +1,23 @@
-#include <FirebaseESP32.h>
+// The following global variables must be declared:
+//   FirebaseData stream;
+//   Motor motor(IN1, IN2);
 
+#include <FirebaseESP32.h>
+#include "motor.h"
+
+
+// Must have Motor motor declared globally
 void streamCallback(StreamData data) {
   if (data.dataType() == "string") {
-    Serial.printf("Data read: %s\n", data.stringData());
+    String command = data.stringData();
+    Serial.printf("Command read: %s\n", command);
+    if (command == "up") {
+      motor.forward();
+    } else if (command == "down") {
+      motor.backward();
+    } else {
+      motor.stop();  // Stop on unexpected input as well as 'stop' command
+    }
   }
 }
 
