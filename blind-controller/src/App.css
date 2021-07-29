@@ -3,7 +3,7 @@
 }
 
 .App-header {
-  background-color: white;
+  background-color: snow;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -11,13 +11,4 @@
   justify-content: flex-start;
   font-size: calc(10px + 2vmin);
   /* color: white; */
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

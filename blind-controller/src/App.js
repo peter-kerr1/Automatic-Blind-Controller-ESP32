@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
+
+import firebase from 'firebase';
+import { firebaseConfig } from './firebase_auth';
 
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
@@ -18,12 +21,24 @@ export default function App() {
   );
 }
 
-function Buttons() {
-  const [state, setState] = React.useState('stop');
+firebase.initializeApp(firebaseConfig);
+var blind_command = firebase.database().ref("command");
 
-  const handleChange = (event, newState) => {
+function Buttons() {
+  const [state, setState] = React.useState('');
+
+  // Whenever the command value changes on Firebase, update the buttons to reflect this change.
+  // We wrap the event listener in a useEffect block with empty dependencies ([]) so that it is only run once (replicates the behaviour of componentDidMount().)
+  useEffect(() => {
+    blind_command.on('value', (dataSnapshot) => {
+      setState(dataSnapshot.val());
+    });
+  }, []);
+
+  // When one of the buttons is pressed, send the new value to Firebase
+  const handleChange = (_event, newState) => {
     if (newState !== null) {
-      setState(newState);
+      blind_command.set(newState);
     }
   };
 
