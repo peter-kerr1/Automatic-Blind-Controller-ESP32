@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import './App.css';
 
 import firebase from 'firebase';
-import { firebaseConfig } from './firebase_auth';
+import { firebaseConfig } from './config';
 
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
