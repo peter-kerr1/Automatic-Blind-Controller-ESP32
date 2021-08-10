@@ -6,7 +6,7 @@
 #include "motor.h"
 
 
-// Must have Motor motor declared globally
+// Must have motor declared globally
 void streamCallback(StreamData data) {
   if (data.dataType() == "string") {
     String command = data.stringData();
@@ -35,7 +35,7 @@ void initFirebase(char* url, char* secret, char* path) {
   Firebase.begin(url, secret);
   
   if (!Firebase.beginStream(stream, path)) {
-    Serial.printf("Failed to begin stream: %s\n\n", stream.errorReason().c_str());
+    Serial.printf("Failed to begin stream: %s\n\n", stream.errorReason());
   }
   
   Firebase.setStreamCallback(stream, streamCallback, streamTimeoutCallback);

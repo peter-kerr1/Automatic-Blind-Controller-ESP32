@@ -1,6 +1,6 @@
 #include <WiFi.h>
 
-void initWiFi(char* ssid, char* password) {
+void initWifi(char* ssid, char* password) {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to Wi-Fi");
   while (WiFi.status() != WL_CONNECTED) {
