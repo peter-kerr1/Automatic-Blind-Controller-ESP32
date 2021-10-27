@@ -36,7 +36,7 @@ void initFirebase(char* url, char* secret, char* path) {
   
   if (!Firebase.beginStream(stream, path)) {
     Serial.printf("Failed to begin stream: %s\n\n", stream.errorReason());
+  } else {
+    Firebase.setStreamCallback(stream, streamCallback, streamTimeoutCallback);
   }
-  
-  Firebase.setStreamCallback(stream, streamCallback, streamTimeoutCallback);
 }

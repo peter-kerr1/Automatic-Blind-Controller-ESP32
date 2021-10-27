@@ -6,8 +6,8 @@
 FirebaseData stream;
 
 #include "motor.h"
-#define IN1 25
-#define IN2 26
+#define IN1 33
+#define IN2 32
 Motor motor(IN1, IN2);
 
 void setup() {
