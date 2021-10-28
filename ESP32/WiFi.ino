@@ -7,8 +7,6 @@ void initWifi(char* ssid, char* password) {
       Serial.print(".");
       delay(300);
   }
-  Serial.println();
-  Serial.print("Connected with IP: ");
+  Serial.printf("\nConnected with IP: ");
   Serial.println(WiFi.localIP());
-  Serial.println();
 }

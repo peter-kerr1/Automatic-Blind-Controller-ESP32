@@ -21,8 +21,9 @@ export default function App() {
   );
 }
 
+const BLIND_NAME = "blind1";
 firebase.initializeApp(firebaseConfig);
-var blind_command = firebase.database().ref("command");
+var blind_command = firebase.database().ref(`${BLIND_NAME}/command`);
 
 function Buttons() {
   const [state, setState] = React.useState('');
