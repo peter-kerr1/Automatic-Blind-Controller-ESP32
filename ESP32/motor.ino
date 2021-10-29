@@ -40,6 +40,7 @@ void Motor::encoderCallback() {
   // Stop the motor as soon as we go out of the pre-set bounds.
   // Allow motor to move back into bounds before triggering a stop again.
   if (outOfBounds == false && (encoderVal <= encoderMin || encoderVal >= encoderMax)) {
+    stop();
     halt = true; // Can't update Firebase during an interrupt - causes CPU timeout
     outOfBounds = true;
   } else if (encoderVal > encoderMin && encoderVal < encoderMax) {

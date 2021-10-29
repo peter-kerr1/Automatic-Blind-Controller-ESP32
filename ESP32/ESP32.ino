@@ -15,18 +15,17 @@ FirebaseData firebaseIO;
 #define SENS2 27
 Motor motor(IN1, IN2, SENS1, SENS2);
 
-
 void setup() {
   Serial.begin(115200);
   initWifi(WIFI_SSID, WIFI_PASSWORD);
-  Serial.printf("\nFirebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
+  Serial.printf("\nFirebase Client v%s\n", FIREBASE_CLIENT_VERSION);
   initFirebase(DATABASE_URL, DATABASE_SECRET);
   addListener(commandStream, BLIND_NAME"/command", commandListener);
   initMotorEncoder();
 }
 
 
-int timeElapsed = 0;
+unsigned long timeElapsed = 0;
 void loop() {
   if (motor.halt) {
     // Can't afford for this set call to fail, keep attempting until success
@@ -34,8 +33,10 @@ void loop() {
     motor.halt = false;
   }
   // Update encoder value on Firebase every 200ms, so that in the event of a power
-  // failure the motor position can be restored when ESP32 is powered back on
-  if (millis() - timeElapsed > 200) {
+  // failure the motor position can be restored when the ESP32 is powered back on.
+  // millis() overflows back to zero after approximately 50 days of continuous execution,
+  // hence the second condition.
+  if (millis() - timeElapsed > 200 || millis() - timeElapsed < 0) {
     Firebase.setIntAsync(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
     timeElapsed = millis();
   }
@@ -46,7 +47,7 @@ void loop() {
 void commandListener(StreamData data) {
   if (data.dataType() == "string") {
     String command = data.stringData();
-    Serial.printf("Command read: %s\n", command);
+    Serial.printf("Command read: '%s'\n", command);
     if (command == "up") {
       motor.clockwise();
     } else if (command == "down") {
@@ -61,6 +62,7 @@ void commandListener(StreamData data) {
 // Sync encoder values with those stored on Firebase
 // Register an interrupt to count encoder ticks
 void initMotorEncoder() {
+  Serial.println("Retrieving encoder values from Firebase\n");
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMin", motor.encoderMin);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMax", motor.encoderMax);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
