@@ -15,6 +15,8 @@ void Motor::clockwise() {
   if (encoderVal < encoderMax) {
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
+  } else {
+    halt = true; // Sets the command on Firebase back to 'stop'
   }
 }
 
@@ -27,6 +29,8 @@ void Motor::antiClockwise() {
   if (encoderVal > encoderMin) {
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
+  } else {
+    halt = true;
   }
 }
 
