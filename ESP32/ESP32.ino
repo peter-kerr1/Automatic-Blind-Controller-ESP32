@@ -20,8 +20,8 @@ void setup() {
   initWifi(WIFI_SSID, WIFI_PASSWORD);
   Serial.printf("\nFirebase Client v%s\n", FIREBASE_CLIENT_VERSION);
   initFirebase(DATABASE_URL, DATABASE_SECRET);
-  addListener(commandStream, BLIND_NAME"/command", commandListener);
   initMotorEncoder();
+  addListener(commandStream, BLIND_NAME"/command", commandListener);
 }
 
 
@@ -64,9 +64,10 @@ void commandListener(StreamData data) {
 // Sync encoder values with those stored on Firebase
 // Register an interrupt to count encoder ticks
 void initMotorEncoder() {
-  Serial.println("Retrieving encoder values from Firebase\n");
+  Serial.print("Retrieving encoder values from Firebase...");
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMin", motor.encoderMin);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMax", motor.encoderMax);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
   attachInterrupt(digitalPinToInterrupt(SENS1), [](){ motor.encoderCallback(); }, RISING);
+  Serial.println("done");
 }
