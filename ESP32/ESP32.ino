@@ -18,14 +18,15 @@ Motor motor(IN1, IN2, SENS1, SENS2);
 #include "Adafruit_VEML7700.h"
 Adafruit_VEML7700 lightSensor = Adafruit_VEML7700();
 
+
 void setup() {
   Serial.begin(115200);
   initWifi(WIFI_SSID, WIFI_PASSWORD);
+  initLightSensor();
   Serial.printf("\nFirebase Client v%s\n", FIREBASE_CLIENT_VERSION);
   initFirebase(DATABASE_URL, DATABASE_SECRET);
-  addListener(commandStream, BLIND_NAME"/command", commandListener);
   initMotorEncoder();
-  initLightSesnor();
+  addListener(commandStream, BLIND_NAME"/command", commandListener);
 }
 
 
@@ -79,16 +80,17 @@ void commandListener(StreamData data) {
 // Sync encoder values with those stored on Firebase
 // Register an interrupt to count encoder ticks
 void initMotorEncoder() {
-  Serial.println("Retrieving encoder values from Firebase\n");
+  Serial.print("Retrieving encoder values from Firebase... ");
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMin", motor.encoderMin);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMax", motor.encoderMax);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
   attachInterrupt(digitalPinToInterrupt(SENS1), [](){ motor.encoderCallback(); }, RISING);
+  Serial.println("done");
 }
 
 
 // Set up light sensor with gain and IT such that it can read lux values between 0-30,000lx
-void initLightSesnor() {
+void initLightSensor() {
   Serial.print("Initialising light sensor... ");
   while (!lightSensor.begin());
   lightSensor.setGain(VEML7700_GAIN_1_4);

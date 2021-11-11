@@ -9,4 +9,5 @@ void initWifi(char* ssid, char* password) {
   }
   Serial.printf("\nConnected with IP: ");
   Serial.println(WiFi.localIP());
+  Serial.println();
 }
