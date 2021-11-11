@@ -5,7 +5,7 @@
 #include "creds.h"
 
 #include <FirebaseESP32.h>
-FirebaseData commandStream;
+FirebaseData targetLuxStream;
 FirebaseData firebaseIO;
 
 #include "motor.h"
@@ -26,13 +26,15 @@ void setup() {
   Serial.printf("\nFirebase Client v%s\n", FIREBASE_CLIENT_VERSION);
   initFirebase(DATABASE_URL, DATABASE_SECRET);
   initMotorEncoder();
-  addListener(commandStream, BLIND_NAME"/command", commandListener);
+  addListener(targetLuxStream, BLIND_NAME"/targetLux", targetLuxListener);
 }
 
 
 unsigned long timeElapsed = 0;
 int prevEncoderVal = 0;
 int prevLuxVal = 0;
+int currentLux = 0;
+int targetLux = -1;
 void loop() {
   if (motor.halt) {
     // Can't afford for this set call to fail, keep attempting until success
@@ -43,7 +45,7 @@ void loop() {
   // Every 200ms:
   // - Update encoder value on Firebase if it has changed, so that in the event of
   //   a power failure the motor position can be restored when the ESP32 is powered back on.
-  // - Update lux value on Firebase if it has changed.
+  // - Update current lux value on Firebase if it has changed.
   // NOTE:
   // millis() overflows back to zero after approximately 50 days of continuous execution,
   // hence the last condition.
@@ -52,27 +54,33 @@ void loop() {
       Firebase.setIntAsync(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
       prevEncoderVal = motor.encoderVal;
     }
-    if (lightSensor.readLux() != prevLuxVal) {
-      Firebase.setIntAsync(firebaseIO, BLIND_NAME"/currentLux", lightSensor.readLux());
-      prevLuxVal = lightSensor.readLux();
+    currentLux = lightSensor.readLux();
+    if (currentLux != prevLuxVal) {
+      Firebase.setIntAsync(firebaseIO, BLIND_NAME"/currentLux", currentLux);
+      prevLuxVal = currentLux;
     }
     timeElapsed = millis();
+  }
+
+  if (targetLux != -1) {
+    if (abs(targetLux - currentLux) < 50) {
+      motor.stop();
+    } else if (targetLux > currentLux) {
+      motor.clockwise();     // Raise blind
+    } else if (targetLux < currentLux) {
+      motor.antiClockwise(); // Lower blind
+    } else {
+      Serial.println("How did you get here?!");
+    }
   }
 }
 
 
 // Controls the motor based on new command received from Firebase
-void commandListener(StreamData data) {
-  if (data.dataType() == "string") {
-    String command = data.stringData();
-    Serial.printf("Command read: '%s'\n", command);
-    if (command == "up") {
-      motor.clockwise();
-    } else if (command == "down") {
-      motor.antiClockwise();
-    } else {
-      motor.stop();  // Stop on unexpected input as well as 'stop' command
-    }
+void targetLuxListener(StreamData data) {
+  if (data.dataType() == "int") {
+    targetLux = data.intData();
+    Serial.printf("New target lux: %dlx\n", targetLux);
   }
 }
 
