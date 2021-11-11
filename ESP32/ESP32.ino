@@ -26,19 +26,21 @@ void setup() {
 
 
 unsigned long timeElapsed = 0;
+int prevEncoderVal = 0;
 void loop() {
   if (motor.halt) {
     // Can't afford for this set call to fail, keep attempting until success
     while (!Firebase.setStringAsync(firebaseIO, BLIND_NAME"/command", "stop"));
     motor.halt = false;
   }
-  // Update encoder value on Firebase every 200ms, so that in the event of a power
-  // failure the motor position can be restored when the ESP32 is powered back on.
+  // Update encoder value on Firebase every 200ms if it has changed, so that in the event of
+  // a power failure the motor position can be restored when the ESP32 is powered back on.
   // millis() overflows back to zero after approximately 50 days of continuous execution,
-  // hence the second condition.
-  if (millis() - timeElapsed > 200 || millis() - timeElapsed < 0) {
+  // hence the last condition.
+  if (motor.encoderVal != prevEncoderVal && (millis() - timeElapsed > 200 || millis() - timeElapsed < 0)) {
     Firebase.setIntAsync(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
     timeElapsed = millis();
+    prevEncoderVal = motor.encoderVal;
   }
 }
 
