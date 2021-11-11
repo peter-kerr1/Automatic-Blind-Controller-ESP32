@@ -64,7 +64,7 @@ void commandListener(StreamData data) {
 // Sync encoder values with those stored on Firebase
 // Register an interrupt to count encoder ticks
 void initMotorEncoder() {
-  Serial.print("Retrieving encoder values from Firebase...");
+  Serial.print("Retrieving encoder values from Firebase... ");
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMin", motor.encoderMin);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMax", motor.encoderMax);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
