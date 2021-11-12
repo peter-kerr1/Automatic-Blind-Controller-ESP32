@@ -11,6 +11,7 @@ class Motor {
     int encoderVal;
     int encoderMin;
     int encoderMax;
+    int enabled;
 
   private:
     int in1;

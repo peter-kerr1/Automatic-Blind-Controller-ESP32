@@ -6,6 +6,7 @@
 
 #include <FirebaseESP32.h>
 FirebaseData targetLuxStream;
+FirebaseData motorEnabledStream;
 FirebaseData firebaseIO;
 
 #include "motor.h"
@@ -27,6 +28,7 @@ void setup() {
   initFirebase(DATABASE_URL, DATABASE_SECRET);
   initMotorEncoder();
   addListener(targetLuxStream, BLIND_NAME"/targetLux", targetLuxListener);
+  addListener(motorEnabledStream, BLIND_NAME"/enabled", motorEnabledListener);
 }
 
 
@@ -56,8 +58,8 @@ void loop() {
     timeElapsed = millis();
   }
 
-  if (targetLux != -1) {
-    if (abs(targetLux - currentLux) < 50) {
+  if (motor.enabled && targetLux != -1) {
+    if (abs(targetLux - currentLux) <= 5) {
       motor.stop();
     } else if (targetLux > currentLux) {
       motor.clockwise();     // Raise blind
@@ -72,7 +74,15 @@ void loop() {
 void targetLuxListener(StreamData data) {
   if (data.dataType() == "int") {
     targetLux = data.intData();
-    Serial.printf("New target lux: %dlx\n", targetLux);
+    Serial.printf("New target lux: %d lx\n", targetLux);
+  }
+}
+
+
+void motorEnabledListener(StreamData data) {
+  if (data.dataType() == "int") {
+    motor.enabled = data.intData();
+    Serial.printf("Motor %s\n", motor.enabled ? "enabled" : "disabled");
   }
 }
 
