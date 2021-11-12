@@ -11,8 +11,8 @@ FirebaseData firebaseIO;
 #include "motor.h"
 #define IN1 33
 #define IN2 32
-#define SENS1 26
-#define SENS2 27
+#define SENS1 27
+#define SENS2 26
 Motor motor(IN1, IN2, SENS1, SENS2);
 
 #include "Adafruit_VEML7700.h"
