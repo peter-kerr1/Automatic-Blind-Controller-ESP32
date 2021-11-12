@@ -11,7 +11,6 @@ class Motor {
     int encoderVal;
     int encoderMin;
     int encoderMax;
-    int halt = false;
 
   private:
     int in1;

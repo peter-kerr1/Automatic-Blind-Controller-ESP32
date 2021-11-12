@@ -36,12 +36,6 @@ int prevLuxVal = 0;
 int currentLux = 0;
 int targetLux = -1;
 void loop() {
-  if (motor.halt) {
-    // Can't afford for this set call to fail, keep attempting until success
-    while (!Firebase.setStringAsync(firebaseIO, BLIND_NAME"/command", "stop"));
-    motor.halt = false;
-  }
-  
   // Every 200ms:
   // - Update encoder value on Firebase if it has changed, so that in the event of
   //   a power failure the motor position can be restored when the ESP32 is powered back on.
@@ -67,10 +61,8 @@ void loop() {
       motor.stop();
     } else if (targetLux > currentLux) {
       motor.clockwise();     // Raise blind
-    } else if (targetLux < currentLux) {
-      motor.antiClockwise(); // Lower blind
     } else {
-      Serial.println("How did you get here?!");
+      motor.antiClockwise(); // Lower blind
     }
   }
 }
