@@ -82,7 +82,8 @@ void targetLuxListener(StreamData data) {
 void motorEnabledListener(StreamData data) {
   if (data.dataType() == "int") {
     motor.enabled = data.intData();
-    Serial.printf("Motor %s\n", motor.enabled ? "enabled" : "disabled");
+    Serial.printf("Motor something'd\n");
+//    Serial.printf("Motor %s\n", motor.enabled ? "enabled" : "disabled");
   }
 }
 
