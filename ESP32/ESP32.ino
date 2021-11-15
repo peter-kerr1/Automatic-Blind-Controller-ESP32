@@ -5,9 +5,8 @@
 #include "creds.h"
 
 #include <FirebaseESP32.h>
-FirebaseData targetLuxStream;
-FirebaseData motorEnabledStream;
 FirebaseData firebaseIO;
+FirebaseData targetLuxStream;
 
 #include "motor.h"
 #define IN1 33
@@ -22,22 +21,13 @@ Adafruit_VEML7700 lightSensor = Adafruit_VEML7700();
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("---");
-  Serial.println(ESP.getFreeHeap());
-  Serial.println("---");
   initWifi(WIFI_SSID, WIFI_PASSWORD);
   initLightSensor();
   Serial.printf("\nFirebase Client v%s\n", FIREBASE_CLIENT_VERSION);
   initFirebase(DATABASE_URL, DATABASE_SECRET);
   initMotorEncoder();
   addListener(targetLuxStream, BLIND_NAME"/targetLux", targetLuxListener);
-  delay(5000);
-  addListener(motorEnabledStream, BLIND_NAME"/enabled", motorEnabledListener);
-  delay(5000);
-  Serial.println("---");
-  Serial.println(ESP.getFreeHeap());
-  Serial.println("---");
-  
+  Firebase.getInt(firebaseIO, BLIND_NAME"/enabled", motor.enabled);
 }
 
 
@@ -85,16 +75,6 @@ void targetLuxListener(StreamData data) {
     targetLux = data.intData();
     Serial.printf("New target lux: %d lx\n", targetLux);
   }
-}
-
-
-void motorEnabledListener(StreamData data) {
-  Serial.printf("Motor working\n");
-//  if (data.dataType() == "int") {
-//    motor.enabled = data.intData();
-//    Serial.printf("Motor something'd\n");
-////    Serial.printf("Motor %s\n", motor.enabled ? "enabled" : "disabled");
-//  }
 }
 
 
