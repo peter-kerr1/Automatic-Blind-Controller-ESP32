@@ -58,7 +58,7 @@ void loop() {
   }
 
   if (motor.enabled && targetLux != -1) {
-    if (abs(targetLux - currentLux) <= 5) {
+    if (abs(targetLux - currentLux) <= 2) {
       motor.stop();
     } else if (targetLux > currentLux) {
       motor.clockwise();     // Raise blind
