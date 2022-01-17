@@ -4,6 +4,7 @@
 // WIFI_SSID, WIFI_PASSWORD, DATABASE_URL, DATABASE_SECRET
 #include "creds.h"
 
+// Uses v3.10.5 of library
 #include <FirebaseESP32.h>
 FirebaseData commandStream;
 FirebaseData firebaseIO;
