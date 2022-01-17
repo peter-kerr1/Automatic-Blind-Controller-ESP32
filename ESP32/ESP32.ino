@@ -43,7 +43,7 @@ void loop() {
   // a power failure the motor position can be restored when the ESP32 is powered back on.
   // millis() overflows back to zero after approximately 50 days of continuous execution,
   // hence the last condition.
-  if (motor.encoderVal != prevEncoderVal && (millis() - timeElapsed > 200 || millis() - timeElapsed < 0)) {
+  if (motor.encoderVal != prevEncoderVal && (millis() - timeElapsed >= 200 || millis() - timeElapsed < 0)) {
     Firebase.setIntAsync(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
     timeElapsed = millis();
     prevEncoderVal = motor.encoderVal;
@@ -71,9 +71,9 @@ void commandListener(StreamData data) {
 // Register an interrupt to count encoder ticks
 void initMotorEncoder() {
   Serial.print("Retrieving encoder values from Firebase... ");
-  Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMin", motor.encoderMin);
-  Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMax", motor.encoderMax);
-  Firebase.getInt(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
+  while(!Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMin", motor.encoderMin));
+  while(!Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMax", motor.encoderMax));
+  while(!Firebase.getInt(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal));
   attachInterrupt(digitalPinToInterrupt(SENS1), [](){ motor.encoderCallback(); }, RISING);
   Serial.println("done");
 }
