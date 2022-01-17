@@ -4,6 +4,7 @@
 // WIFI_SSID, WIFI_PASSWORD, DATABASE_URL, DATABASE_SECRET
 #include "creds.h"
 
+// Uses v3.10.5 of Firebase ESP32 Client by Mobizt
 #include <FirebaseESP32.h>
 FirebaseData commandStream;
 FirebaseData firebaseIO;
@@ -15,9 +16,14 @@ FirebaseData firebaseIO;
 #define SENS2 26
 Motor motor(IN1, IN2, SENS1, SENS2);
 
+// Uses v1.1.1 of Adafruit VEML7700 Library by Adafruit
+#include "Adafruit_VEML7700.h"
+Adafruit_VEML7700 lightSensor = Adafruit_VEML7700();
+
 void setup() {
   Serial.begin(115200);
   initWifi(WIFI_SSID, WIFI_PASSWORD);
+  initLightSensor();
   Serial.printf("\nFirebase Client v%s\n", FIREBASE_CLIENT_VERSION);
   initFirebase(DATABASE_URL, DATABASE_SECRET);
   initMotorEncoder();
@@ -69,5 +75,14 @@ void initMotorEncoder() {
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderMax", motor.encoderMax);
   Firebase.getInt(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
   attachInterrupt(digitalPinToInterrupt(SENS1), [](){ motor.encoderCallback(); }, RISING);
+  Serial.println("done");
+}
+
+// Set up light sensor with gain and IT such that it can read lux values between 0-30,000lx
+void initLightSensor() {
+  Serial.print("Initialising light sensor... ");
+  while (!lightSensor.begin());
+  lightSensor.setGain(VEML7700_GAIN_1_4);
+  lightSensor.setIntegrationTime(VEML7700_IT_50MS);
   Serial.println("done");
 }
