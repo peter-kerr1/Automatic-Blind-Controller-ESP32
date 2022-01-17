@@ -31,24 +31,41 @@ void setup() {
 }
 
 
+
 unsigned long timeElapsed = 0;
 int prevEncoderVal = 0;
+int prevLux = 0;
+int currentLux = 0;
+
 void loop() {
   if (motor.halt) {
     // Can't afford for this set call to fail, keep attempting until success
     while (!Firebase.setStringAsync(firebaseIO, BLIND_NAME"/command", "stop"));
     motor.halt = false;
   }
-  // Update encoder value on Firebase every 200ms if it has changed, so that in the event of
-  // a power failure the motor position can be restored when the ESP32 is powered back on.
+  // Every 200ms:
+  // - Update encoder value on Firebase if it has changed, so that in the event of
+  //   a power failure the motor position can be restored when the ESP32 is powered back on.
+  // - Update current lux value on Firebase if it has changed.
+  // NOTE:
   // millis() overflows back to zero after approximately 50 days of continuous execution,
   // hence the last condition.
-  if (motor.encoderVal != prevEncoderVal && (millis() - timeElapsed >= 200 || millis() - timeElapsed < 0)) {
-    Firebase.setIntAsync(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
+  if (millis() - timeElapsed > 200 || millis() - timeElapsed < 0) {
+    if (motor.encoderVal != prevEncoderVal) {
+      Firebase.setIntAsync(firebaseIO, BLIND_NAME"/encoderVal", motor.encoderVal);
+      prevEncoderVal = motor.encoderVal;
+    }
+    
+    currentLux = lightSensor.readLux();
+    if (currentLux != prevLux) {
+      Firebase.setIntAsync(firebaseIO, BLIND_NAME"/currentLux", currentLux);
+      prevLux = currentLux;
+    }
+    
     timeElapsed = millis();
-    prevEncoderVal = motor.encoderVal;
   }
 }
+
 
 
 // Controls the motor based on new command received from Firebase
