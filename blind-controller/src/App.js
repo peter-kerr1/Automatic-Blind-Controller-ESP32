@@ -35,17 +35,17 @@ function Timers() {
   const [raiseTime, setRaiseTime] = React.useState(null);
   const [lowerTime, setLowerTime] = React.useState(null);
 
-  const blindRaiseTime = firebase.database().ref(`${BLIND_NAME}/raiseTime`);
-  const blindLowerTime = firebase.database().ref(`${BLIND_NAME}/lowerTime`);
+  const blindRaiseTime = firebase.database().ref(`${BLIND_NAME}/settings/raiseTime`);
+  const blindLowerTime = firebase.database().ref(`${BLIND_NAME}/settings/lowerTime`);
 
   useEffect(() => {
-    firebase.database().ref(`${BLIND_NAME}/raiseTime`).on('value', (dataSnapshot) => {
+    firebase.database().ref(`${BLIND_NAME}/settings/raiseTime`).on('value', (dataSnapshot) => {
       const time = new Date();
       time.setHours(Math.floor(dataSnapshot.val() / 100));
       time.setMinutes(dataSnapshot.val() % 100);
       setRaiseTime(time);
     });
-    firebase.database().ref(`${BLIND_NAME}/lowerTime`).on('value', (dataSnapshot) => {
+    firebase.database().ref(`${BLIND_NAME}/settings/lowerTime`).on('value', (dataSnapshot) => {
       const time = new Date();
       time.setHours(Math.floor(dataSnapshot.val() / 100));
       time.setMinutes(dataSnapshot.val() % 100);
@@ -78,13 +78,13 @@ function Timers() {
 }
 
 function Buttons() {
-  const blindCommand = firebase.database().ref(`${BLIND_NAME}/command`);
+  const blindCommand = firebase.database().ref(`${BLIND_NAME}/settings/command`);
   const [state, setState] = React.useState('');
 
   // Whenever the command value changes on Firebase, update the buttons to reflect this change.
   // We wrap the event listener in a useEffect block with empty dependencies ([]) so that it is only run once (replicates the behaviour of componentDidMount().)
   useEffect(() => {
-    firebase.database().ref(`${BLIND_NAME}/command`).on('value', (dataSnapshot) => {
+    firebase.database().ref(`${BLIND_NAME}/settings/command`).on('value', (dataSnapshot) => {
       setState(dataSnapshot.val());
     });
   }, []);

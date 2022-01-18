@@ -27,7 +27,7 @@ void setup() {
   Serial.printf("\nFirebase Client v%s\n", FIREBASE_CLIENT_VERSION);
   initFirebase(DATABASE_URL, DATABASE_SECRET);
   initMotorEncoder();
-  addListener(commandStream, BLIND_NAME"/command", commandListener);
+  addListener(commandStream, BLIND_NAME"/settings/command", commandListener);
 }
 
 
@@ -40,7 +40,7 @@ int currentLux = 0;
 void loop() {
   if (motor.halt) {
     // Can't afford for this set call to fail, keep attempting until success
-    while (!Firebase.setStringAsync(firebaseIO, BLIND_NAME"/command", "stop"));
+    while (!Firebase.setStringAsync(firebaseIO, BLIND_NAME"/settings/command", "stop"));
     motor.halt = false;
   }
   // Every 200ms:
