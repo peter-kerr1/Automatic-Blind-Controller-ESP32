@@ -11,11 +11,12 @@ FirebaseData settingStream;
 String settings[3] = {"/command", "/lowerTime", "/raiseTime"};
 
 #include "motor.h"
+#define PWM 25
 #define IN1 33
 #define IN2 32
 #define SENS1 27
 #define SENS2 26
-Motor motor(IN1, IN2, SENS1, SENS2);
+Motor motor(PWM, IN1, IN2, SENS1, SENS2);
 
 // Uses v1.1.1 of Adafruit VEML7700 Library by Adafruit
 #include "Adafruit_VEML7700.h"
@@ -71,9 +72,9 @@ void loop() {
     sensorTimer = millis();
   }
   
-  // Every 15 seconds, check to see if it's time to raise or lower the blinds.
+  // Every 30 seconds, check to see if it's time to raise or lower the blinds.
   // If it is, we update the command on Firebase so that the GUI syncs up with what the blind is doing.
-  if (millis() - blindTimer >= 15000 || millis() - blindTimer < 0) {
+  if (millis() - blindTimer >= 30000 || millis() - blindTimer < 0) {
     int currentTime = getTime();
     if (currentTime == raiseTime) {
       while (!Firebase.setStringAsync(firebaseIO, BLIND_NAME"/settings/command", "up"));

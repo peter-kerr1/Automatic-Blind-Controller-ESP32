@@ -1,18 +1,25 @@
 #include "motor.h"
 
-Motor::Motor(int _in1, int _in2, int _sens1, int _sens2) {
+Motor::Motor(int _pwm, int _in1, int _in2, int _sens1, int _sens2) {
+  pwm = _pwm;
   in1 = _in1;
   in2 = _in2;
   sens1 = _sens1;
   sens2 = _sens2;
+  pinMode(pwm, OUTPUT);
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
   pinMode(sens1, INPUT);
   pinMode(sens2, INPUT);
+  // Set initial pin values (motor stopped)  
+  digitalWrite(pwm, LOW);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, LOW);
 }
 
 void Motor::clockwise() {
   if (encoderVal < encoderMax) {
+    digitalWrite(pwm, HIGH);
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
   } else {
@@ -21,12 +28,14 @@ void Motor::clockwise() {
 }
 
 void Motor::stop() {
+  digitalWrite(pwm, LOW);
   digitalWrite(in1, LOW);
   digitalWrite(in2, LOW);
 }
 
 void Motor::antiClockwise() {
   if (encoderVal > encoderMin) {
+    digitalWrite(pwm, HIGH);
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
   } else {

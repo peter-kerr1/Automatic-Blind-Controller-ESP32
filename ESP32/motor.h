@@ -3,7 +3,7 @@
 
 class Motor {
   public:
-    Motor(int, int, int, int);
+    Motor(int, int, int, int, int);
     void clockwise();
     void stop();
     void antiClockwise();
@@ -14,6 +14,7 @@ class Motor {
     int halt = false;
 
   private:
+    int pwm;
     int in1;
     int in2;
     int sens1;
