@@ -15,6 +15,8 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import StopIcon from '@material-ui/icons/Stop';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
+import Slider from '@mui/material/Slider';
+
 const BLIND_NAME = "blind1";
 
 export default function App() {
@@ -22,14 +24,57 @@ export default function App() {
     <div className="App">
       <header className="App-header">
         <h2>ESP32 Blind Controller</h2>
-        <Stack direction="row" spacing={5}>
+        <Stack
+          sx={{ height: 200, width: 350 }}
+          justifyContent="space-between"
+          alignItems="center"
+          direction="row"
+          spacing={4}
+        >
+          <BlindPos />
           <Timers />
           <Buttons />
         </Stack>
+        <Lux />
       </header>
     </div>
   );
 }
+
+function BlindPos() {
+  const [encoderMin, setEncoderMin] = React.useState(0);
+  const [encoderMax, setEncoderMax] = React.useState(1);
+  const [encoderVal, setEncoderVal] = React.useState(0);
+
+  useEffect(() => {
+    firebase.database().ref(`${BLIND_NAME}/encoderMin`).on('value', (dataSnapshot) => {
+      setEncoderMin(dataSnapshot.val());
+    });
+    firebase.database().ref(`${BLIND_NAME}/encoderMax`).on('value', (dataSnapshot) => {
+      setEncoderMax(dataSnapshot.val());
+    });
+    firebase.database().ref(`${BLIND_NAME}/encoderVal`).on('value', (dataSnapshot) => {
+      setEncoderVal(dataSnapshot.val());
+    });
+  }, []);
+
+  const calculatePercent = (value) => {
+    return `${(((value - encoderMin) / (encoderMax - encoderMin)) * 100).toFixed(1)}%`;
+  };
+
+  return (
+    <Slider
+      orientation="vertical"
+      color='secondary'
+      min={encoderMin}
+      max={encoderMax}
+      value={encoderVal}
+      valueLabelFormat={calculatePercent}
+      valueLabelDisplay="on"
+    />
+  );
+}
+
 
 function Timers() {
   const [raiseTime, setRaiseTime] = React.useState(null);
@@ -57,7 +102,7 @@ function Timers() {
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Stack justifyContent="center" spacing={3}>
         <MobileTimePicker
-          label="Raise Blind"
+          label="Raise Time"
           value={raiseTime}
           onChange={(newValue) => {
             blindRaiseTime.set(newValue.getHours() * 100 + newValue.getMinutes());
@@ -65,7 +110,7 @@ function Timers() {
           renderInput={(params) => <TextField {...params} />}
         />
         <MobileTimePicker
-          label="Lower Blind"
+          label="Lower Time"
           value={lowerTime}
           onChange={(newValue) => {
             blindLowerTime.set(newValue.getHours() * 100 + newValue.getMinutes());
@@ -77,10 +122,12 @@ function Timers() {
   );
 }
 
-function Buttons() {
-  const blindCommand = firebase.database().ref(`${BLIND_NAME}/settings/command`);
-  const [state, setState] = React.useState('');
 
+function Buttons() {
+  const [state, setState] = React.useState('');
+  
+  const blindCommand = firebase.database().ref(`${BLIND_NAME}/settings/command`);
+  
   // Whenever the command value changes on Firebase, update the buttons to reflect this change.
   // We wrap the event listener in a useEffect block with empty dependencies ([]) so that it is only run once (replicates the behaviour of componentDidMount().)
   useEffect(() => {
@@ -108,5 +155,22 @@ function Buttons() {
         <KeyboardArrowDownIcon/>
       </ToggleButton>
     </ToggleButtonGroup>
+  );
+}
+
+
+function Lux() {
+  const [currentLux, setCurrentLux] = React.useState(0);
+
+  useEffect(() => {
+    firebase.database().ref(`${BLIND_NAME}/currentLux`).on('value', (dataSnapshot) => {
+      setCurrentLux(dataSnapshot.val());
+    });
+  }, []);
+
+  return (
+    <div style={{marginTop:"10px", marginBottom:"150px"}}>
+      Current lux: {currentLux}lx
+    </div>
   );
 }
