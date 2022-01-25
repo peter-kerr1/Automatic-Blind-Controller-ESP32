@@ -65,6 +65,7 @@ function BlindPos() {
   return (
     <Slider
       orientation="vertical"
+      track="inverted"
       color='secondary'
       min={encoderMin}
       max={encoderMax}
