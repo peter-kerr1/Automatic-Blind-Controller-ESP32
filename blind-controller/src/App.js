@@ -140,7 +140,7 @@ function Timers() {
         anchorOrigin={{vertical:'bottom', horizontal:'center'}}
         open={notification}
         onClose={closeNotification}
-        autoHideDuration={5000}
+        autoHideDuration={4000}
       >
         <Alert severity="success">
           {notifMessage}
