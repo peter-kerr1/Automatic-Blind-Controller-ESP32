@@ -17,13 +17,16 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
 import Slider from '@mui/material/Slider';
 
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 const BLIND_NAME = "blind1";
 
 export default function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h2>ESP32 Blind Controller</h2>
+        <h2 style={{marginBottom: "45px"}}>ESP32 Blind Controller</h2>
         <Stack
           sx={{ height: 200, width: 350 }}
           justifyContent="space-between"
@@ -80,6 +83,8 @@ function BlindPos() {
 function Timers() {
   const [raiseTime, setRaiseTime] = React.useState(null);
   const [lowerTime, setLowerTime] = React.useState(null);
+  const [notification, setNotification] = React.useState(false);
+  const [notifMessage, setNotifMessage] = React.useState("");
 
   const blindRaiseTime = firebase.database().ref(`${BLIND_NAME}/settings/raiseTime`);
   const blindLowerTime = firebase.database().ref(`${BLIND_NAME}/settings/lowerTime`);
@@ -90,14 +95,25 @@ function Timers() {
       time.setHours(Math.floor(dataSnapshot.val() / 100));
       time.setMinutes(dataSnapshot.val() % 100);
       setRaiseTime(time);
+      setNotification(true);
+      setNotifMessage(`Raise time set to ${time.toLocaleTimeString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})}`)
     });
     firebase.database().ref(`${BLIND_NAME}/settings/lowerTime`).on('value', (dataSnapshot) => {
       const time = new Date();
       time.setHours(Math.floor(dataSnapshot.val() / 100));
       time.setMinutes(dataSnapshot.val() % 100);
       setLowerTime(time);
+      setNotification(true);
+      setNotifMessage(`Lower time set to ${time.toLocaleTimeString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})}`)
     });
   }, []);
+
+  const closeNotification = (_, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setNotification(false)
+  };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -119,6 +135,17 @@ function Timers() {
           renderInput={(params) => <TextField {...params} />}
         />
       </Stack>
+      <Snackbar
+        style={{marginLeft: 0, marginBottom: "20px"}}
+        anchorOrigin={{vertical:'bottom', horizontal:'center'}}
+        open={notification}
+        onClose={closeNotification}
+        autoHideDuration={5000}
+      >
+        <Alert severity="success">
+          {notifMessage}
+        </Alert>
+      </Snackbar>
     </LocalizationProvider>
   );
 }
