@@ -22,13 +22,14 @@ Motor motor(PWM, IN1, IN2, SENS1, SENS2);
 #include "Adafruit_VEML7700.h"
 Adafruit_VEML7700 lightSensor = Adafruit_VEML7700();
 
+// https://www.reddit.com/r/esp32/comments/jx09hj/hot_to_obtain_local_time_zone_offset_including/
 #include "time.h"
-#define HOUR_IN_SEC 3600
+#define TIMEZONE_SYD "AEST-10AEDT,M10.1.0,M4.1.0/3"
 
 void setup() {
   Serial.begin(115200);
   initWifi(WIFI_SSID, WIFI_PASSWORD);
-  configTime(11 * HOUR_IN_SEC, HOUR_IN_SEC, "pool.ntp.org");
+  configTzTime(TIMEZONE_SYD, "pool.ntp.org");
   initLightSensor();
   initFirebase(DATABASE_URL, DATABASE_SECRET);
   initMotorEncoder();
